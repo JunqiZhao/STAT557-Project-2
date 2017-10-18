@@ -1,0 +1,130 @@
+---
+title: "STAT 557 Project 2"
+author: "Sayak and Junqi"
+date: "October 1, 2017"
+output:
+  word_document: default
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+#KNN clustering
+#load data
+library(caret)
+wine=read.csv("wine.csv",header=T)
+wine=transform(wine,class=as.factor(as.character(wine$class))) #Transform class into factor for classification
+#prepare dataset
+#rawdata[rawdata=="?"]<-NA
+#ad=na.omit(rawdata)
+#constructing the training and testing set by 80% to 20%
+library("caret")
+index=createDataPartition(wine$class,p=0.8, list = FALSE)
+wine.training=wine[index,]
+wine.testing=wine[-index,]
+#train the model
+trctrl=trainControl(method="repeatedcv", number=10,repeats = 3)
+set.seed(9)
+grid=expand.grid(k=c(1:178))
+set.seed(9)
+model.knn=train(wine.training[, 2:14], wine.training[, 1], method='knn',trControl=trctrl,tuneGrid = grid,tuneLength = 2)
+#Evaluate the model
+#inspect the performance of training set
+model.knn
+plot(model.knn)
+#inspect the performance of testing set
+set.seed(9)
+predictions=predict(object = model.knn,wine.testing[,2:14])
+table(predictions)
+confusionMatrix(predictions,wine.testing[,1])
+```
+
+```{r}
+#Unsupervised Clustering
+#Conduct Feature Selection with PCA
+pcawine=wine[,2:14]
+#PCA
+prin_comp=prcomp(pcawine, scale. = TRUE)
+#Extract first two components without class labelW
+pc=prin_comp$x[,1:2]
+```
+
+```{r}
+##K-means
+# Perform K-Means with 2 clusters
+set.seed(7)
+km2 = kmeans(pc, 2, nstart=100)
+plot(pc, col =(km2$cluster +1) , main="K-Means result with 2 clusters", pch=20, cex=2)
+# Perform K-Means with 3 clusters
+set.seed(7)
+km3 = kmeans(pc, 3, nstart=100)
+plot(pc, col =(km3$cluster +1) , main="K-Means result with 3 clusters", pch=20, cex=2)
+# Perform K-Means with 4 clusters
+set.seed(7)
+km4 = kmeans(pc, 4, nstart=100)
+plot(pc, col =(km4$cluster +1) , main="K-Means result with 4 clusters", pch=20, cex=2)
+km5 = kmeans(pc, 5, nstart=100)
+plot(pc, col =(km5$cluster +1) , main="K-Means result with 5 clusters", pch=20, cex=2)
+```
+
+```{r}
+##K-center
+# Perform K-center with 2 clusters
+library("flexclust")
+set.seed(7)
+kc2=kcca(pc,k=2,family = kccaFamily("kmedians"),control = list(initcent="kmeanspp"))
+image(kc2)
+points(pc)
+barplot(kc2)
+
+# Perform K-center with 3 clusters
+library("flexclust")
+set.seed(7)
+kc3=kcca(pc,k=3,family = kccaFamily("kmedians"),control = list(initcent="kmeanspp"))
+image(kc3)
+points(pc)
+barplot(kc3)
+
+# Perform K-center with 4 clusters
+library("flexclust")
+set.seed(7)
+kc4=kcca(pc,k=4,family = kccaFamily("kmedians"),control = list(initcent="kmeanspp"))
+image(kc4)
+points(pc)
+barplot(kc4)
+
+# Perform K-center with 5 clusters
+library("flexclust")
+kc5=kcca(pc,k=5,family = kccaFamily("kmedians"),control = list(initcent="kmeanspp"))
+image(kc5)
+points(pc)
+barplot(kc5)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
