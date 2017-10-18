@@ -104,6 +104,13 @@ kc5=kcca(pc,k=5,family = kccaFamily("kmedians"),control = list(initcent="kmeansp
 image(kc5)
 points(pc)
 barplot(kc5)
+
+# Perform K-center with 6 clusters
+library("flexclust")
+kc6=kcca(pc,k=6,family = kccaFamily("kmedians"),control = list(initcent="kmeanspp"))
+image(kc6)
+points(pc)
+barplot(kc6)
 ```
 
 
